@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Connexion - Oriental Sourcing Logistics{% endblock %}
+
+{% block content %}
+<h2>Connexion</h2>
+<form method="POST">
+  <label>Nom d'utilisateur: <input type="text" name="username"></label><br><br>
+  <label>Mot de passe: <input type="password" name="password"></label><br><br>
+  <button type="submit" class="btn-primary">Connexion</button>
+</form>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <p>{{ messages[0] }}</p>
+  {% endif %}
+{% endwith %}
+{% endblock %}

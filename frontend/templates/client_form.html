@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Créer un client - Oriental Sourcing Logistics{% endblock %}
+
+{% block content %}
+<h2>Créer un client</h2>
+
+<form method="POST" id="client-form">
+  <div class="client-widget-form">
+    <div class="client-field">
+      <label for="code_client" class="client-label">Code Client :</label>
+      <input type="text" name="code_client" id="code_client" required class="client-input">
+    </div>
+    <div class="client-field">
+      <label for="raison_sociale" class="client-label">Raison Sociale :</label>
+      <input type="text" name="raison_sociale" id="raison_sociale" required class="client-input">
+    </div>
+    <div class="client-field">
+      <label for="adresse" class="client-label">Adresse :</label>
+      <input type="text" name="adresse" id="adresse" required class="client-input">
+    </div>
+    <div class="client-field">
+      <label for="nif" class="client-label">NIF :</label>
+      <input type="text" name="nif" id="nif" required class="client-input">
+    </div>
+    <div class="client-field">
+      <label for="stat" class="client-label">STAT :</label>
+      <input type="text" name="stat" id="stat" required class="client-input">
+    </div>
+    <div class="client-field">
+      <label for="rib" class="client-label">RIB :</label>
+      <input type="text" name="rib" id="rib" required class="client-input">
+    </div>
+    <button type="submit" class="btn-primary client-btn">Créer le client</button>
+  </div>
+</form>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <div class="alert alert-danger client-alert">
+      {% for msg in messages %}
+        <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% endblock %}

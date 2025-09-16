@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Accueil - OSL{% endblock %}
+
+{% block head_extra %}
+<!-- On peut mettre ici des scripts ou styles spécifiques -->
+{% endblock %}
+
+{% block content %}
+<section>
+    <h2>Qui sommes-nous ?</h2>
+
+    <!-- Animation SVG logistique simple -->
+    <svg class="logistic-svg" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <circle cx="20" cy="100" r="10" fill="#0078d7">
+            <animate attributeName="cx" values="20;60;100;140;180;20" dur="8s" repeatCount="indefinite" />
+        </circle>
+        <rect x="10" y="50" width="20" height="20" fill="#005a9e" />
+        <rect x="50" y="40" width="20" height="30" fill="#005a9e" />
+        <rect x="90" y="30" width="20" height="40" fill="#005a9e" />
+        <rect x="130" y="40" width="20" height="30" fill="#005a9e" />
+        <rect x="170" y="50" width="20" height="20" fill="#005a9e" />
+    </svg>
+
+    <p>Oriental Sourcing Logistics, c’est la solution fiable pour suivre vos colis à Madagascar.</p>
+</section>
+<section>
+    <h2>Nos services</h2>
+    <div class="slider" aria-label="Slider des images de nos services">
+        <div class="slider-track">
+            <img src="{{ url_for('static', filename='service1.jpg') }}" alt="Service 1 - Suivi en temps réel" />
+            <img src="{{ url_for('static', filename='service2.jpg') }}" alt="Service 2 - Notifications automatiques" />
+            <img src="{{ url_for('static', filename='service3.jpg') }}" alt="Service 3 - Support client" />
+            <img src="{{ url_for('static', filename='service4.jpg') }}" alt="Service 4 - Gestion simplifiée" />
+            <img src="{{ url_for('static', filename='service1.jpg') }}" alt="" aria-hidden="true" />
+        </div>
+    </div>
+</section>
+
+<section>
+    <h2>Contactez-nous</h2>
+    <p>Email : <a href="mailto:support@otc-tracking.mg">Orientalsourcing@gmail.com</a></p>
+    <p>Téléphone : +261 34 12 34 567</p>
+</section>
+{% endblock %}

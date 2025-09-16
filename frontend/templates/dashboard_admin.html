@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Administrateur - OSL ERP{% endblock %}
+{% block content %}
+<h2>Bienvenue sur le tableau de bord ERP</h2>
+<div class="erp-widgets">
+  <div class="erp-widget"><h3>Factures</h3><p>Gérez vos factures clients, suivez les paiements et exportez en PDF.</p><a href="/facture" class="btn-primary">Accéder</a></div>
+  <div class="erp-widget"><h3>Clients</h3><p>Ajoutez, modifiez et consultez vos clients.</p><a href="/client" class="btn-primary">Accéder</a></div>
+  <div class="erp-widget"><h3>Articles</h3><p>Gérez votre catalogue d'articles et tarifs.</p><a href="/article" class="btn-primary">Accéder</a></div>
+  <div class="erp-widget"><h3>Statistiques</h3><p>Visualisez vos indicateurs clés (à venir).</p></div>
+</div>
+{% endblock %}

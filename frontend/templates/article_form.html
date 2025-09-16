@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-container">
+    <h2>Créer un article</h2>
+    <form method="post" action="">
+        <div class="form-group">
+            <label for="code_article">Code Article :</label>
+            <input type="text" id="code_article" name="code_article" required class="form-control" placeholder="Ex: ART001">
+        </div>
+        <div class="form-group">
+            <label for="designation">Désignation :</label>
+            <input type="text" id="designation" name="designation" required class="form-control" placeholder="Ex: Stylo bleu">
+        </div>
+        <div class="form-group">
+            <label for="prix_unitaire">Prix unitaire :</label>
+            <input type="number" step="0.01" id="prix_unitaire" name="prix_unitaire" required class="form-control" placeholder="Ex: 100.00">
+        </div>
+        <button type="submit" class="btn btn-primary">Créer l'article</button>
+    </form>
+</div>
+{% endblock %}
