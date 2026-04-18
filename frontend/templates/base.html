@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Otiental Sourcing Logistics{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <a href="/">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="OSL Logo" class="logo" />
+            </a>
+        </div>
+        <div class="header-right">
+            {% if session.get('user') %}
+                <a href="/logout" class="btn-link">Se déconnecter</a>
+            {% else %}
+                <nav class="top-nav">
+                    <a href="/">Accueil</a>
+                    <a href="/about">À propos</a>
+                    <a href="mailto:support@otc-tracking.mg">Nous contacter</a>
+                </nav>
+                <a href="/login" class="btn-link">Se connecter</a>
+                <a href="/register" class="btn-primary">S'inscrire</a>
+            {% endif %}
+        </div>
+    </header>
+    <div class="main-layout">
+        {% if session.get('user') %}
+            <nav class="sidebar">
+                <ul>
+                    <li><a href="/dashboard" {% if request.path == '/dashboard' %}class="active"{% endif %}>Dashboard</a></li>
+                    {% if session.get('user') == 'admin' %}
+                        <li><a href="/facture" {% if request.path == '/facture' %}class="active"{% endif %}>Factures</a></li>
+                        <li><a href="/client" {% if request.path == '/client' %}class="active"{% endif %}>Clients</a></li>
+                        <li><a href="/article" {% if request.path == '/article' %}class="active"{% endif %}>Articles</a></li>
+                    {% endif %}
+                    <li><a href="/tracking" {% if request.path == '/tracking' %}class="active"{% endif %}>Tracking</a></li>
+                    <li><a href="/about" {% if request.path == '/about' %}class="active"{% endif %}>À propos</a></li>
+                </ul>
+            </nav>
+        {% endif %}
+        <main class="central-widget">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    <footer>
+        <div class="footer-content">
+            <p>© 2025 OSL Madagascar - Tous droits réservés</p>
+            <div class="social-links">
+                <a href="https://facebook.com/OTCTracking" target="_blank" aria-label="Facebook">FB</a>
+                <a href="https://twitter.com/OTCTracking" target="_blank" aria-label="Twitter">TW</a>
+                <a href="https://linkedin.com/company/OTCTracking" target="_blank" aria-label="LinkedIn">IN</a>
+            </div>
+        </div>
+    </footer>
+    {% block body_extra %}{% endblock %}
+</body>
+</html>

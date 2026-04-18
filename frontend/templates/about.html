@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}À propos - Oriental Sourcing Logisctics{% endblock %}
+{% block content %}
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<section>
+    <h2>À propos de Oriental Sourcing Logistics</h2>
+    <p>
+        Oriental sourcing Logistics est née de la volonté d’apporter transparence et fiabilité dans le suivi des colis
+        à Madagascar.
+    </p>
+    <p>
+        Nous mettons à disposition des solutions innovantes et simples d’utilisation, adaptées aux besoins
+        des particuliers comme des professionnels.
+    </p>
+</section>
+
+<section>
+    <h2>Contact</h2>
+    <p>Vous avez des questions ? Besoin d’aide ?</p>
+    <p>Email : <a href="mailto:support@otc-tracking.mg">orientalsourcing@gmail.com</a></p>
+    <p>Téléphone : +261 34 12 34 567</p>
+</section>
+{% endblock %}

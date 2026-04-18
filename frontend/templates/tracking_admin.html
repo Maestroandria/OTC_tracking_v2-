@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-container">
+    <h2>Ajouter un tracking</h2>
+    <form method="post" action="">
+        <div class="form-group">
+            <label for="tracking_number">Numéro de suivi :</label>
+            <input type="text" id="tracking_number" name="tracking_number" required class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="statut">Statut :</label>
+            <input type="text" id="statut" name="statut" required class="form-control" placeholder="Ex: En transit, Livré, etc.">
+        </div>
+        <div class="form-group">
+            <label for="location">Localisation :</label>
+            <input type="text" id="location" name="location" required class="form-control" placeholder="Ex: Antananarivo">
+        </div>
+        <div class="form-group">
+            <label for="commentaire">Commentaire :</label>
+            <input type="text" id="commentaire" name="commentaire" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block title %}Créer une facture - Oriental Sourcing Logistics{% endblock %}
+
+{% block content %}
+<h2>Créer une facture</h2>
+<form method="POST" id="facture-form">
+  <!-- Bloc Entête facture -->
+  <div class="facture-header">
+    <div>
+      <label for="num_facture">N° Facture</label>
+      <input type="text" name="num_facture" id="num_facture" placeholder="Numéro facture">
+    </div>
+    <div>
+      <label for="date_facture">Date</label>
+      <input type="text" name="date_facture" id="date_facture" value="{{ date_facture if date_facture else '' }}" readonly>
+    </div>
+    <div>
+      <label for="client_code">Code client</label>
+      <input type="text" name="client_code" id="client_code" placeholder="Code client" required>
+    </div>
+    <div>
+      <label for="devise">Devise</label>
+      <input type="text" name="devise" id="devise" value="Ar">
+    </div>
+    <div>
+      <label for="type_facture">Type</label>
+      <select name="type_facture" id="type_facture">
+        <option value="Facture">Facture</option>
+        <option value="Devis">Devis</option>
+        <option value="Proforma">Proforma</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Bloc Lignes de facture -->
+  <div>
+    <label style="font-weight:bold;">Lignes de facture</label>
+    <table id="items-table" style="width:100%; margin-top:8px; margin-bottom:18px;">
+      <thead>
+        <tr>
+          <th>Article</th>
+          <th>Désignation</th>
+          <th>Prix Unitaire</th>
+          <th>Quantité</th>
+          <th>Montant Ligne</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="text" name="item" placeholder="Code article"></td>
+          <td><input type="text" name="designation" placeholder="Désignation"></td>
+          <td><input type="number" name="unit_price" placeholder="Prix" step="0.01"></td>
+          <td><input type="number" name="quantity" placeholder="Qté" value="1" min="0" step="0.01"></td>
+          <td><input type="text" name="montant" class="montant-ligne" readonly></td>
+          <td><button type="button" onclick="removeRow(this)">Supprimer</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <button type="button" onclick="addRow()">Ajouter une ligne</button>
+  </div>
+
+  <!-- Footer facture -->
+  <div class="facture-footer">
+    <label for="mode_reglement">Mode de règlement :</label>
+    <select name="mode_reglement" id="mode_reglement">
+      <option value="Espèces">Espèces</option>
+      <option value="Chèque">Chèque</option>
+      <option value="Virement">Virement</option>
+      <option value="Carte bancaire">Carte bancaire</option>
+    </select>
+    <span class="total">Total : <span id="total">0.00</span> <span id="devise-total">Ar</span></span>
+  </div>
+
+  <!-- Commentaire -->
+  <div class="facture-commentaire">
+    <label for="commentaire">Commentaire :</label>
+    <textarea name="commentaire" id="commentaire" rows="2"></textarea>
+  </div>
+
+  <button type="submit" class="btn-primary facture-form-btn">Créer Facture</button>
+</form>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-danger">
+      {% for msg in messages %}
+        <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<script>
+function addRow() {
+  const table = document.getElementById("items-table").getElementsByTagName('tbody')[0];
+  const newRow = table.insertRow();
+  newRow.innerHTML = `
+    <td><input type="text" name="item" placeholder="Code article"></td>
+    <td><input type="text" name="designation" placeholder="Désignation"></td>
+    <td><input type="number" name="unit_price" placeholder="Prix" step="0.01"></td>
+    <td><input type="number" name="quantity" placeholder="Qté" value="1" min="0" step="0.01"></td>
+    <td><input type="text" name="montant" class="montant-ligne" readonly></td>
+    <td><button type="button" onclick="removeRow(this)">Supprimer</button></td>
+  `;
+  bindRowEvents(newRow);
+  updateTotal();
+}
+
+function removeRow(btn) {
+  const row = btn.parentNode.parentNode;
+  row.parentNode.removeChild(row);
+  updateTotal();
+}
+
+function updateMontantLigne(row) {
+  const price = parseFloat(row.querySelector('input[name="unit_price"]').value) || 0;
+  const qty = parseFloat(row.querySelector('input[name="quantity"]').value) || 0;
+  const montant = price * qty;
+  row.querySelector('input.montant-ligne').value = montant.toFixed(2);
+}
+
+function updateTotal() {
+  let total = 0;
+  const rows = document.querySelectorAll('#items-table tbody tr');
+  rows.forEach(row => {
+    updateMontantLigne(row);
+    const montant = parseFloat(row.querySelector('input.montant-ligne').value) || 0;
+    total += montant;
+  });
+  document.getElementById('total').innerText = total.toFixed(2);
+  document.getElementById('devise-total').innerText = document.getElementById('devise').value || 'Ar';
+}
+
+function bindRowEvents(row) {
+  row.querySelector('input[name="unit_price"]').addEventListener('input', function() {
+    updateMontantLigne(row);
+    updateTotal();
+  });
+  row.querySelector('input[name="quantity"]').addEventListener('input', function() {
+    updateMontantLigne(row);
+    updateTotal();
+  });
+}
+
+document.querySelectorAll('#items-table tbody tr').forEach(bindRowEvents);
+document.getElementById('devise').addEventListener('input', updateTotal);
+</script>
+{% endblock %}

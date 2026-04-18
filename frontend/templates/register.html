@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Inscription - Oriental Sourcing Logistics{% endblock %}
+
+{% block content %}
+<h2>Inscription</h2>
+<form method="POST" class="register-form">
+  <label for="username">Nom d'utilisateur</label>
+  <input type="text" name="username" id="username" required>
+
+  <label for="email">E-mail</label>
+  <input type="email" name="email" id="email" required>
+
+  <label for="nom">Nom</label>
+  <input type="text" name="nom" id="nom" required>
+
+  <label for="prenom">Prénom</label>
+  <input type="text" name="prenom" id="prenom" required>
+
+  <label for="fonction">Fonction</label>
+  <input type="text" name="fonction" id="fonction" required>
+
+  <label for="password">Mot de passe</label>
+  <input type="password" name="password" id="password" required>
+
+  <button type="submit" class="btn-primary">S'inscrire</button>
+</form>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <p>{{ messages[0] }}</p>
+  {% endif %}
+{% endwith %}
+{% endblock %}

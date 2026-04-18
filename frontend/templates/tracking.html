@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-container">
+    <h2>Suivi de colis</h2>
+    <form method="post" action="">
+        <div class="form-group">
+            <label for="tracking_number">Numéro de suivi :</label>
+            <input type="text" id="tracking_number" name="tracking_number" required class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Consulter</button>
+    </form>
+    {% if tracking_history is not none %}
+        {% if tracking_history|length == 0 %}
+            <div class="tracking-result">
+                <p>Aucun statut trouvé pour ce numéro.</p>
+            </div>
+        {% else %}
+            <div class="tracking-result">
+                <h3>Historique du colis</h3>
+                <ul class="history">
+                {% for t in tracking_history %}
+                    <li>
+                        <strong>{{ t[3] }}</strong> — <span>{{ t[2] }}</span> à <span>{{ t[4] }}</span>
+                        {% if t[5] %}<em>({{ t[5] }})</em>{% endif %}
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
