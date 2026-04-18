@@ -1,0 +1,43 @@
+substitutions:
+  _REGION: europe-west1
+  _SERVICE: tracking-colis-cloudrun
+  _REPO: cloud-run-images
+  _SECRET_KEY: please-change
+  _APP_ADMIN_USER: admin
+  _APP_ADMIN_PASSWORD: please-change
+  _WEBHOOK_TOKEN: please-change
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE}
+      - --image
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+      - --region
+      - ${_REGION}
+      - --platform
+      - managed
+      - --allow-unauthenticated
+      - --set-env-vars
+      - SECRET_KEY=${_SECRET_KEY},APP_ADMIN_USER=${_APP_ADMIN_USER},APP_ADMIN_PASSWORD=${_APP_ADMIN_PASSWORD},WEBHOOK_TOKEN=${_WEBHOOK_TOKEN}
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+
+options:
+  substitutionOption: ALLOW_LOOSE

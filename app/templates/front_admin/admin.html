@@ -1,0 +1,192 @@
+{% extends 'front_admin/base.html' %}
+{% block title %}Administration{% endblock %}
+{% block content %}
+<section class="admin-shell">
+  <article class="card admin-hero admin-hero-card">
+    <div class="admin-hero-top">
+      <div>
+        <p class="admin-kicker">Back-office unifié</p>
+        <h1>Administration des expéditions</h1>
+        <p class="muted">Consulte, crée, importe et mets à jour les colis depuis un seul espace de pilotage.</p>
+      </div>
+      <div class="admin-hero-actions">
+        <a class="cta-link" href="{{ url_for('legacy.create_facture') }}">Facturation</a>
+        <a class="cta-link" href="{{ url_for('legacy.create_facture', type_facture='Devis') }}">Faire un devis</a>
+      </div>
+    </div>
+
+    <div class="admin-stats-grid">
+      <div class="admin-stat-card">
+        <span>Expéditions</span>
+        <strong>{{ shipments|length }}</strong>
+      </div>
+      <div class="admin-stat-card">
+        <span>Recherche active</span>
+        <strong>{{ search or 'Toutes' }}</strong>
+      </div>
+      <div class="admin-stat-card admin-imports-card">
+        <span>Imports</span>
+        <strong>Excel colis & événements</strong>
+        <details class="admin-imports-popover">
+          <summary class="admin-imports-trigger">Ouvrir</summary>
+          <div class="admin-imports-bubble">
+            <div class="admin-imports-actions">
+              <button type="button" id="download-excel-template-btn" class="cta-link admin-side-action">Télécharger modèle Excel</button>
+              <button type="button" id="import-shipments-btn" class="cta-link admin-side-action">Injection Excel colis</button>
+              <button type="button" id="import-events-btn" class="cta-link admin-side-action">Injection Excel événements</button>
+            </div>
+            <input type="file" id="import-shipments-file" accept=".xlsx,.xls" hidden />
+            <input type="file" id="import-events-file" accept=".xlsx,.xls" hidden />
+            <div class="admin-imports-notes">
+              <p class="muted">Colonnes colis: date, tracking_number, client, poids, colis, envoi, frais.</p>
+              <p class="muted">Colonnes événements: tracking_number, code, location, details, ts. Le label est généré automatiquement.</p>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </article>
+
+  <div class="admin-layout">
+    <div class="admin-main-column">
+      <section class="card admin-search-card">
+        <div class="admin-section-head">
+          <div>
+            <p class="admin-section-kicker">Suivi des expéditions</p>
+            <h2>Recherche et liste des colis</h2>
+          </div>
+          <p class="muted">Consulte les résultats, ouvre le suivi public et filtre rapidement par tracking.</p>
+        </div>
+
+        <form method="get" action="{{ url_for('web.admin') }}" class="inline-form admin-inline-form admin-search-form">
+          <input type="text" name="q" value="{{ search }}" placeholder="Rechercher un tracking (ex: OSL-2026-0001)" />
+          <button type="submit">Rechercher</button>
+        </form>
+
+        <div class="admin-table-wrap admin-shipments-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Tracking</th>
+                <th>Client</th>
+                <th>Statut</th>
+                <th>Poids</th>
+                <th>Colis</th>
+                <th>Envoi</th>
+                <th>Frais</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in shipments %}
+              <tr>
+                <td>{{ s['date'] or '-' }}</td>
+                <td><strong>{{ s['tracking_number'] }}</strong></td>
+                <td>{{ s['client'] or '-' }}</td>
+                <td>{{ s['status_current_label'] or '-' }}</td>
+                <td>{{ s['poids'] or '-' }}</td>
+                <td>{{ s['colis'] or '-' }}</td>
+                <td>{{ s['envoi'] or '-' }}</td>
+                <td>{{ s['frais'] or '-' }}</td>
+                <td><a class="admin-row-link" href="{{ url_for('web.track_page', tracking_number=s['tracking_number']) }}" target="_blank" rel="noopener">Ouvrir</a></td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="9" class="muted">Aucun colis trouvé.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="admin-form-grid">
+        <article class="card admin-form-card">
+          <div class="admin-section-head admin-section-head-compact">
+            <div>
+              <p class="admin-section-kicker">Création</p>
+              <h2>Créer un colis</h2>
+            </div>
+          </div>
+
+          <form id="create-shipment-form" class="grid-form admin-grid-form admin-grid-form-modern">
+            <label class="admin-field">
+              <span>Date</span>
+              <input name="date" type="date" title="Date" aria-label="Date" required />
+            </label>
+            <label class="admin-field">
+              <span>Tracking</span>
+              <input name="tracking_number" placeholder="Tracking" required />
+            </label>
+            <label class="admin-field">
+              <span>Client</span>
+              <input name="client" placeholder="Client" required />
+            </label>
+            <label class="admin-field">
+              <span>Poids</span>
+              <input name="poids" type="number" step="0.01" min="0" placeholder="Poids" required />
+            </label>
+            <label class="admin-field">
+              <span>Colis</span>
+              <input name="colis" type="number" min="1" placeholder="Colis" required />
+            </label>
+            <label class="admin-field">
+              <span>Envoi</span>
+              <input name="envoi" placeholder="Envoi" required />
+            </label>
+            <label class="admin-field admin-field-wide">
+              <span>Frais</span>
+              <input name="frais" type="number" step="0.01" min="0" placeholder="Frais" required />
+            </label>
+            <button type="submit">Créer</button>
+          </form>
+        </article>
+
+        <article class="card admin-form-card">
+          <div class="admin-section-head admin-section-head-compact">
+            <div>
+              <p class="admin-section-kicker">Événements</p>
+              <h2>Ajouter un événement</h2>
+            </div>
+          </div>
+
+          <form id="add-event-form" class="grid-form admin-grid-form admin-grid-form-modern">
+            <label class="admin-field">
+              <span>Tracking</span>
+              <input name="tracking_number" placeholder="Tracking" required />
+            </label>
+            <label class="admin-field">
+              <span>Code statut</span>
+              <input name="code" placeholder="Ex: IN_TRANSIT" required />
+            </label>
+            <label class="admin-field">
+              <span>Lieu</span>
+              <input name="location" placeholder="Lieu" />
+            </label>
+            <label class="admin-field">
+              <span>Date ISO</span>
+              <input name="ts" placeholder="Optionnel" />
+            </label>
+            <label class="admin-field admin-field-wide">
+              <span>Détails</span>
+              <input name="details" placeholder="Détails" />
+            </label>
+            <button type="submit">Ajouter</button>
+          </form>
+          <p class="muted admin-form-note">Codes recommandés: CREATED, PICKED_UP, IN_TRANSIT, AT_HUB, OUT_FOR_DELIVERY, DELIVERED, EXCEPTION, RETURNED, HELD_CUSTOMS. Le label se remplit automatiquement.</p>
+        </article>
+      </section>
+
+      <div class="card admin-feedback-card">
+        <p class="admin-section-kicker">Retour système</p>
+        <div id="admin-feedback" class="feedback">Les créations, imports et erreurs apparaîtront ici.</div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block body_extra %}
+<script src="{{ url_for('static', filename='vendor/xlsx.full.min.js') }}"></script>
+{% endblock %}

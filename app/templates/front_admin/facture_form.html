@@ -1,0 +1,273 @@
+﻿{% extends 'front_admin/base.html' %}
+{% block title %}Créer une facture - Oriental Sourcing Logistics{% endblock %}
+
+{% block content %}
+<section class="facture-shell">
+  <article class="card facture-hero-card">
+    <div class="facture-headline facture-hero">
+      <div>
+        <p class="facture-kicker">Facturation OSL</p>
+        <h1>Créer une facture</h1>
+        <p class="muted">Prépare rapidement une facture, un devis ou une proforma avec un total recalculé en direct.</p>
+      </div>
+      <div class="facture-hero-actions">
+        <a href="{{ url_for('web.admin') }}" class="facture-hero-back-btn">
+          ← Dashboard admin
+        </a>
+        <div class="facture-hero-badges">
+          <span class="facture-pill">Facture</span>
+          <span class="facture-pill">Devis</span>
+          <span class="facture-pill">Proforma</span>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <section class="card facture-card">
+    <form method="POST" id="facture-form" class="facture-form">
+      <div class="facture-grid-top">
+        <section class="facture-section facture-section-head">
+          <div class="facture-section-title">
+            <p class="facture-section-kicker">Entête</p>
+            <h2>Informations générales</h2>
+          </div>
+
+          <div class="facture-header">
+            <label class="facture-field">
+              <span>N° Facture</span>
+              <input type="text" name="num_facture" id="num_facture" placeholder="Numéro facture">
+            </label>
+            <label class="facture-field">
+              <span>Date</span>
+              <input type="text" name="date_facture" id="date_facture" value="{{ date_facture if date_facture else '' }}" readonly>
+            </label>
+            <label class="facture-field">
+              <span>Code client</span>
+              <input type="text" name="client_code" id="client_code" list="client-codes" placeholder="Code client" required>
+            </label>
+            <label class="facture-field">
+              <span>Devise</span>
+              <input type="text" name="devise" id="devise" value="Ar">
+            </label>
+            <label class="facture-field">
+              <span>Type</span>
+              <select name="type_facture" id="type_facture">
+                <option value="Facture" {% if request.args.get('type_facture') == 'Facture' or not request.args.get('type_facture') %}selected{% endif %}>Facture</option>
+                <option value="Devis" {% if request.args.get('type_facture') == 'Devis' %}selected{% endif %}>Devis</option>
+                <option value="Proforma" {% if request.args.get('type_facture') == 'Proforma' %}selected{% endif %}>Proforma</option>
+              </select>
+            </label>
+          </div>
+
+          <datalist id="client-codes">
+            {% for client in clients %}
+              <option value="{{ client.code_client }}">{{ client.raison_sociale }}</option>
+            {% endfor %}
+          </datalist>
+
+          <details id="facture-client-panel" class="facture-client-block facture-client-popover">
+            <summary class="facture-client-popover-summary">
+              <div>
+                <p class="facture-section-kicker">Client</p>
+                <h2>Fiche client</h2>
+              </div>
+              <span class="facture-client-popover-hint">Ouvrir</span>
+            </summary>
+
+            <div class="facture-client-content">
+              <div class="facture-client-block-head">
+                <p class="muted">Si le code client n'existe pas, complète la fiche ci-dessous (champs obligatoires).</p>
+
+                <details class="facture-client-infobulle">
+                  <summary aria-label="Aide client">i</summary>
+                  <div class="facture-client-infobulle-bubble">
+                    <strong>Info client</strong>
+                    <p>Code connu: la fiche se complète automatiquement.</p>
+                    <p>Nouveau code: le bloc s'ouvre et la saisie des champs devient obligatoire.</p>
+                  </div>
+                </details>
+              </div>
+
+              <div class="facture-header facture-client-grid">
+                <label class="facture-field">
+                  <span>Raison sociale</span>
+                  <input type="text" name="client_raison_sociale" id="client_raison_sociale" placeholder="Entreprise / Nom client" required>
+                </label>
+                <label class="facture-field">
+                  <span>Adresse</span>
+                  <input type="text" name="client_adresse" id="client_adresse" placeholder="Adresse complète" required>
+                </label>
+                <label class="facture-field">
+                  <span>NIF</span>
+                  <input type="text" name="client_nif" id="client_nif" placeholder="NIF" required>
+                </label>
+                <label class="facture-field">
+                  <span>STAT</span>
+                  <input type="text" name="client_stat" id="client_stat" placeholder="STAT" required>
+                </label>
+                <label class="facture-field facture-field-wide">
+                  <span>RIB</span>
+                  <input type="text" name="client_rib" id="client_rib" placeholder="RIB" required>
+                </label>
+              </div>
+
+              <details class="facture-clients-directory">
+                <summary>Consulter les clients existants</summary>
+                <div class="facture-clients-list">
+                  {% if clients %}
+                    {% for client in clients %}
+                      <article class="facture-client-entry">
+                        <strong>{{ client.code_client }}</strong>
+                        <span>{{ client.raison_sociale }}</span>
+                        <small>{{ client.nif }} | {{ client.stat }}</small>
+                      </article>
+                    {% endfor %}
+                  {% else %}
+                    <p class="muted">Aucun client enregistré pour le moment.</p>
+                  {% endif %}
+                </div>
+              </details>
+            </div>
+          </details>
+        </section>
+
+        <aside class="facture-summary-card">
+          <p class="facture-section-kicker">Résumé</p>
+          <h2>Total actuel</h2>
+          <div class="facture-total-card">
+            <strong><span id="total">0.00</span> <span id="devise-total">Ar</span></strong>
+            <span>Mis à jour automatiquement selon vos lignes</span>
+          </div>
+
+          <label class="facture-field facture-field-inline" for="mode_reglement">
+            <span>Mode de règlement</span>
+            <select name="mode_reglement" id="mode_reglement">
+              <option value="Espèces">Espèces</option>
+              <option value="Chèque">Chèque</option>
+              <option value="Virement">Virement</option>
+              <option value="Carte bancaire">Carte bancaire</option>
+            </select>
+          </label>
+
+          <label class="facture-field facture-field-inline" for="commentaire">
+            <span>Commentaire</span>
+            <textarea name="commentaire" id="commentaire" rows="3"></textarea>
+          </label>
+        </aside>
+      </div>
+
+      <section class="facture-section facture-items-block">
+        <div class="facture-items-head">
+          <div>
+            <p class="facture-section-kicker">Lignes</p>
+            <h2>Lignes de facture</h2>
+          </div>
+          <button type="button" id="add-line-button" class="facture-add-line">Ajouter une ligne</button>
+        </div>
+
+        <div class="facture-table-wrap">
+          <table id="items-table" class="facture-items-table">
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th>Désignation</th>
+                <th>Prix Unitaire</th>
+                <th>Quantité</th>
+                <th>Montant Ligne</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="text" name="item" placeholder="Code article"></td>
+                <td><input type="text" name="designation" placeholder="Désignation"></td>
+                <td><input type="number" name="unit_price" placeholder="Prix" step="0.01"></td>
+                <td><input type="number" name="quantity" placeholder="Qté" value="1" min="0" step="0.01"></td>
+                <td><input type="text" name="montant" class="montant-ligne" title="Montant de la ligne" placeholder="Montant" readonly></td>
+                <td><button type="button" class="facture-btn-danger">Supprimer</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <template id="facture-row-template">
+          <tr>
+            <td><input type="text" name="item" placeholder="Code article"></td>
+            <td><input type="text" name="designation" placeholder="Désignation"></td>
+            <td><input type="number" name="unit_price" placeholder="Prix" step="0.01"></td>
+            <td><input type="number" name="quantity" placeholder="Qté" value="1" min="0" step="0.01"></td>
+            <td><input type="text" name="montant" class="montant-ligne" title="Montant de la ligne" placeholder="Montant" readonly></td>
+            <td><button type="button" class="facture-btn-danger">Supprimer</button></td>
+          </tr>
+        </template>
+      </section>
+
+      <div class="facture-submit-row">
+        <button type="submit" class="btn-primary facture-form-btn">Créer Facture</button>
+      </div>
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-danger facture-alert">
+          {% for msg in messages %}
+            <p>{{ msg }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </section>
+
+  <details class="card facture-card facture-history-card" id="facture-history-details">
+    <summary class="facture-history-summary">
+      <span class="facture-history-summary-left">
+        <span class="facture-section-kicker">Consultation</span>
+        <span class="facture-history-title">Factures établies</span>
+      </span>
+      <span class="facture-history-badge">{{ factures|length }}</span>
+    </summary>
+
+    {% if factures %}
+      <div class="facture-history-wrap">
+        <table class="facture-history-table">
+          <thead>
+            <tr>
+              <th>N°</th>
+              <th>Date</th>
+              <th>Code client</th>
+              <th>Client</th>
+              <th>Type</th>
+              <th>Total</th>
+              <th>Règlement</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for facture in factures %}
+              <tr>
+                <td>{{ facture.num_facture }}</td>
+                <td>{{ facture.date_facture or '-' }}</td>
+                <td>{{ facture.code_client or '-' }}</td>
+                <td>{{ facture.raison_sociale or '-' }}</td>
+                <td>{{ facture.type_facture or '-' }}</td>
+                <td>{{ '%.2f'|format(facture.total or 0) }} {{ facture.devise or '' }}</td>
+                <td>{{ facture.mode_reglement or '-' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="facture-history-empty">
+        <p class="muted">Aucune facture enregistrée pour le moment.</p>
+      </div>
+    {% endif %}
+  </details>
+</section>
+
+<div id="clients-data" data-clients='{{ clients|tojson|forceescape }}' hidden></div>
+{% endblock %}
+
+{% block body_extra %}
+  <script src="{{ url_for('static', filename='js/facture.js') }}" defer></script>
+{% endblock %}
+
+

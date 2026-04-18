@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Tracking Colis{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  </head>
+  <body>
+    <header class="container header">
+      <div class="header-left">
+        <a href="/legacy">
+          <img src="{{ url_for('static', filename='legacy/logo.png') }}" alt="OSL Logo" class="logo" />
+        </a>
+      </div>
+      <nav>
+        <a href="{{ url_for('web.index') }}" class="auth-home-link">Retour a l'accueil</a>
+        <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="Basculer le thème sombre">🌙 Sombre</button>
+      </nav>
+    </header>
+
+    <main class="container">{% block content %}{% endblock %}</main>
+    <script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+  </body>
+</html>

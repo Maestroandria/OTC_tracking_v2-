@@ -1,0 +1,133 @@
+﻿{% extends 'front_admin/base.html' %}
+{% block title %}Dashboard client{% endblock %}
+{% block content %}
+<section class="dashboard-shell">
+    <article class="card dashboard-hero-card">
+        <div class="dashboard-hero">
+            <div>
+                <p class="dashboard-kicker">Espace client OSL</p>
+                <h1>Bonjour {{ session.get('prenom') or session.get('user') or 'client' }}</h1>
+                <p class="dashboard-lead">Retrouve ton suivi colis, les tarifs OSL et les points de contact utiles depuis un seul écran.</p>
+            </div>
+            <div class="dashboard-hero-badges">
+                <span class="dashboard-pill">Suivi direct</span>
+                <span class="dashboard-pill">Tarifs</span>
+                <span class="dashboard-pill">Assistance</span>
+            </div>
+        </div>
+    </article>
+
+    <section class="dashboard-grid">
+        <article class="card dashboard-panel dashboard-panel-primary">
+            <p class="dashboard-panel-kicker">Accès rapide</p>
+            <h2>Vos actions essentielles</h2>
+            <p class="muted">Ouvre directement les vues les plus utiles sans repasser par la page d'accueil.</p>
+
+            <div class="dashboard-actions-grid">
+                <a class="dashboard-action-card" href="{{ url_for('web.tracking_page') }}">
+                    <strong>Suivre un colis</strong>
+                    <span>Consulte l'état, l'historique et le lien partageable.</span>
+                </a>
+                <a class="dashboard-action-card" href="#dashboard-tarifs">
+                    <strong>Voir nos tarifs</strong>
+                    <span>Retrouve l'estimation tarifaire sans quitter ton espace client.</span>
+                </a>
+                <a class="dashboard-action-card" href="{{ contact_mailto }}">
+                    <strong>Contacter OSL</strong>
+                    <span>Ouvre directement votre messagerie pour écrire à {{ contact_email }}.</span>
+                </a>
+            </div>
+        </article>
+
+        <article class="card dashboard-panel dashboard-account-card">
+            <p class="dashboard-panel-kicker">Compte</p>
+            <div class="dashboard-account-head">
+                <div>
+                    <h2>Votre espace</h2>
+                    <p class="muted">Infos de session accessibles au clic.</p>
+                </div>
+                <details class="dashboard-account-popover">
+                    <summary class="dashboard-account-trigger">i</summary>
+                    <div class="dashboard-account-bubble">
+                        <dl class="dashboard-account-list">
+                            <div>
+                                <dt>Nom complet</dt>
+                                <dd>{{ session.get('prenom', '-') }} {{ session.get('nom', '-') }}</dd>
+                            </div>
+                            <div>
+                                <dt>E-mail</dt>
+                                <dd>{{ session.get('email', '-') }}</dd>
+                            </div>
+                            <div>
+                                <dt>Fonction</dt>
+                                <dd>{{ session.get('fonction', '-') }}</dd>
+                            </div>
+                            <div>
+                                <dt>Accès</dt>
+                                <dd>{{ session.get('role', 'user')|capitalize }}</dd>
+                            </div>
+                        </dl>
+                        <a class="cta-link dashboard-account-logout" href="{{ url_for('legacy.logout') }}">Se déconnecter</a>
+                    </div>
+                </details>
+            </div>
+        </article>
+    </section>
+
+    <section id="dashboard-tarifs" class="card dashboard-panel dashboard-tariff-panel">
+        <div class="dashboard-tariff-head dashboard-tariff-head-compact">
+            <div>
+                <p class="dashboard-panel-kicker">Tarifs OSL</p>
+                <h2>Estimation tarifaire</h2>
+                <p class="muted">Simulation disponible au clic, sans occuper toute la page.</p>
+            </div>
+            <details class="dashboard-tariff-popover">
+                <summary class="dashboard-tariff-trigger">Ouvrir</summary>
+                <div class="dashboard-tariff-bubble">
+                    <div class="dashboard-tariff-bubble-head">
+                        <div>
+                            <p class="dashboard-panel-kicker">Simulation</p>
+                            <h3>Calcul rapide</h3>
+                        </div>
+                        <a class="dashboard-inline-link" href="{{ contact_mailto }}">Tarif précis</a>
+                    </div>
+
+                    <div class="dashboard-tariff-highlights">
+                        <span class="dashboard-tariff-chip">Simulation immédiate</span>
+                        <span class="dashboard-tariff-chip">4 types d'envoi</span>
+                        <span class="dashboard-tariff-chip">Tarif provisoire</span>
+                    </div>
+
+                    <form class="dashboard-tariff-form" data-tariff-form>
+                        <div class="dashboard-tariff-grid">
+                            <label>
+                                Type d'envoi
+                                <select data-tariff-service>
+                                    <option value="normal">Normal</option>
+                                    <option value="express">Express</option>
+                                    <option value="liquide_poudre">Liquide &amp; Poudre</option>
+                                    <option value="batterie">Batterie</option>
+                                </select>
+                            </label>
+                            <label>
+                                Poids (kg)
+                                <input type="number" step="0.01" min="0" placeholder="Ex: 12.5" data-tariff-weight>
+                            </label>
+                        </div>
+                        <div class="dashboard-tariff-actions">
+                            <button type="submit">Calculer</button>
+                            <p class="tariff-result dashboard-tariff-result" data-tariff-result aria-live="polite"></p>
+                        </div>
+                    </form>
+                </div>
+            </details>
+        </div>
+    </section>
+</section>
+{% endblock %}
+
+{% block body_extra %}
+<script src="{{ url_for('static', filename='js/tariff-calc.js') }}" defer></script>
+{% endblock %}
+
+

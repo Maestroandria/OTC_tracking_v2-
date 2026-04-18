@@ -1,0 +1,54 @@
+﻿{% extends 'front_user/base.html' %}
+{% block title %}Connexion - Oriental Sourcing Logistics{% endblock %}
+
+{% block content %}
+<section class="auth-wrap">
+  <article class="auth-card auth-card-login">
+    <div class="auth-showcase auth-showcase-inline">
+      <div class="auth-showcase-copy">
+        <p class="auth-kicker">Espace securise OSL</p>
+        <h1>Connexion client</h1>
+        <p class="auth-subtitle">Suivi, tarifs et assistance dans un seul espace.</p>
+      </div>
+      <div class="auth-showcase-badge-row">
+        <span class="auth-badge">Suivi</span>
+        <span class="auth-badge">Tarifs</span>
+        <span class="auth-badge">Support</span>
+      </div>
+    </div>
+
+    <div class="auth-form-panel auth-form-panel-compact">
+      <p class="auth-panel-kicker">Connexion</p>
+      <h2>Heureux de te revoir</h2>
+      <p class="auth-panel-subtitle">Entre tes identifiants pour continuer.</p>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <p class="auth-alert">{{ messages[0] }}</p>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" class="auth-form">
+        <div class="auth-field">
+          <label for="username">Nom d'utilisateur</label>
+          <input id="username" type="text" name="username" autocomplete="username" placeholder="Votre identifiant" required>
+        </div>
+
+        <div class="auth-field">
+          <label for="password">Mot de passe</label>
+          <input id="password" type="password" name="password" autocomplete="current-password" placeholder="Votre mot de passe" required>
+        </div>
+
+        <button type="submit">Connexion</button>
+      </form>
+
+      <p class="auth-footer">
+        Pas encore de compte ?
+        <a href="{{ url_for('legacy.register') }}">Creer un compte</a>
+      </p>
+    </div>
+  </article>
+</section>
+{% endblock %}
+
+

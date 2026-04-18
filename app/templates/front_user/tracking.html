@@ -1,0 +1,106 @@
+﻿{% extends 'front_admin/base.html' %}
+{% block title %}Tracking colis{% endblock %}
+{% block content %}
+<section class="tracking-shell" {% if shipment %}data-track-page data-tracking-number="{{ tracking_number }}"{% endif %}>
+    <article class="card tracking-hero-card">
+        <div class="tracking-hero">
+            <div class="tracking-head">
+                <p class="tracking-kicker">Suivi OSL</p>
+                <h1>Suivi de colis</h1>
+                <p class="tracking-lead">Entre ton numéro de tracking pour consulter l'état actuel, l'historique et partager le lien de suivi.</p>
+            </div>
+
+            <div class="tracking-top-actions">
+                <a class="tracking-back-link" href="{{ url_for('legacy.dashboard') }}">Retour au dashboard</a>
+            </div>
+
+            <form method="get" action="{{ url_for('web.tracking_page') }}" class="tracking-search-form tracking-search-panel">
+                <label class="sr-only" for="tracking_number">Numéro de suivi</label>
+                <input type="text" id="tracking_number" name="tracking_number" value="{{ tracking_number }}" placeholder="Ex: OSL-2026-0001" required />
+                <button type="submit">Consulter</button>
+            </form>
+        </div>
+    </article>
+
+    {% if searched and not shipment %}
+        <article class="card tracking-empty-card">
+            <div class="tracking-empty muted">Aucun colis trouvé pour ce numéro. Vérifie le tracking ou réessaie avec la référence exacte.</div>
+        </article>
+    {% endif %}
+
+    {% if shipment %}
+        <section class="tracking-results-grid">
+            <article class="card tracking-summary-card">
+                <div class="tracking-toolbar">
+                    <div>
+                        <p class="tracking-panel-kicker">Expédition</p>
+                        <h2>Colis {{ tracking_number }}</h2>
+                    </div>
+                    <button type="button" id="refresh-track">Actualiser</button>
+                </div>
+
+                <div class="status-chip tracking-status-chip">{{ shipment['status_current_label'] or 'En attente' }} ({{ shipment['status_current_code'] or 'CREATED' }})</div>
+
+                <div class="tracking-stats-grid">
+                    <div class="tracking-stat-card">
+                        <span>Date</span>
+                        <strong>{{ shipment['date'] or '-' }}</strong>
+                    </div>
+                    <div class="tracking-stat-card">
+                        <span>Client</span>
+                        <strong>{{ shipment['client'] or '-' }}</strong>
+                    </div>
+                    <div class="tracking-stat-card">
+                        <span>Poids</span>
+                        <strong>{{ shipment['poids'] or '-' }}</strong>
+                    </div>
+                    <div class="tracking-stat-card">
+                        <span>Colis</span>
+                        <strong>{{ shipment['colis'] or '-' }}</strong>
+                    </div>
+                    <div class="tracking-stat-card">
+                        <span>Envoi</span>
+                        <strong>{{ shipment['envoi'] or '-' }}</strong>
+                    </div>
+                    <div class="tracking-stat-card">
+                        <span>Frais</span>
+                        <strong>{{ shipment['frais'] or '-' }}</strong>
+                    </div>
+                </div>
+
+                <div class="tracking-share-card">
+                    <div>
+                        <p class="tracking-panel-kicker">Partage</p>
+                        <strong>Lien partageable</strong>
+                    </div>
+                    <div class="tracking-share-row">
+                        <label class="sr-only" for="share-link">Lien de partage</label>
+                        <input id="share-link" type="text" readonly value="{{ request.url }}" />
+                        <button type="button" id="copy-link">Copier</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card tracking-timeline-card">
+                <div class="tracking-timeline-head">
+                    <p class="tracking-panel-kicker">Historique</p>
+                    <h2>Timeline</h2>
+                </div>
+                <div id="timeline" class="timeline tracking-timeline-list">{%- for event in events -%}
+                    <div class="timeline-item">
+                        <span class="badge badge-{{ event['code']|lower }}">{{ event['code'] }}</span>
+                        <div>
+                            <div><strong>{{ event['label'] }}</strong> — {{ event['location'] or 'N/A' }}</div>
+                            <div class="muted">{{ event['event_time'] }}</div>
+                            <div>{{ event['details'] or '' }}</div>
+                        </div>
+                    </div>{%- else -%}
+                    <div class="muted">Aucun événement disponible.</div>{%- endfor -%}
+                </div>
+            </article>
+        </section>
+    {% endif %}
+</section>
+{% endblock %}
+
+

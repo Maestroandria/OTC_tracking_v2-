@@ -1,0 +1,76 @@
+﻿{% extends 'front_user/base.html' %}
+{% block title %}Inscription - Oriental Sourcing Logistics{% endblock %}
+
+{% block content %}
+<section class="auth-wrap">
+  <article class="auth-card auth-card-register">
+    <div class="auth-showcase auth-showcase-inline auth-showcase-register">
+      <div class="auth-showcase-copy">
+        <p class="auth-kicker">Nouveau compte OSL</p>
+        <h1>Inscription express</h1>
+        <p class="auth-subtitle">Crée ton accès client pour suivre tes colis, consulter les tarifs et contacter l'équipe depuis un espace unique.</p>
+      </div>
+      <div class="auth-showcase-badge-row">
+        <span class="auth-badge">Compte client</span>
+        <span class="auth-badge">Suivi direct</span>
+        <span class="auth-badge">Support OSL</span>
+      </div>
+    </div>
+
+    <div class="auth-form-panel auth-form-panel-compact register-form-panel">
+      <p class="auth-panel-kicker">Inscription</p>
+      <h2>Active ton espace en une minute</h2>
+      <p class="auth-panel-subtitle">Renseigne les informations essentielles. Le formulaire reste compact sur desktop et tablette pour tenir dans une seule page.</p>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <p class="auth-alert">{{ messages[0] }}</p>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" class="auth-form register-grid">
+        <div class="auth-field">
+          <label for="username">Nom d'utilisateur</label>
+          <input id="username" type="text" name="username" autocomplete="username" placeholder="Identifiant" required>
+        </div>
+
+        <div class="auth-field">
+          <label for="email">E-mail</label>
+          <input id="email" type="email" name="email" autocomplete="email" placeholder="contact@entreprise.com" required>
+        </div>
+
+        <div class="auth-field">
+          <label for="nom">Nom</label>
+          <input id="nom" type="text" name="nom" autocomplete="family-name" placeholder="Nom" required>
+        </div>
+
+        <div class="auth-field">
+          <label for="prenom">Prénom</label>
+          <input id="prenom" type="text" name="prenom" autocomplete="given-name" placeholder="Prénom" required>
+        </div>
+
+        <div class="auth-field">
+          <label for="fonction">Fonction</label>
+          <input id="fonction" type="text" name="fonction" placeholder="Responsable logistique" required>
+        </div>
+
+        <div class="auth-field">
+          <label for="password">Mot de passe</label>
+          <input id="password" type="password" name="password" autocomplete="new-password" placeholder="Mot de passe" required>
+        </div>
+
+        <div class="register-actions">
+          <button type="submit">Créer mon compte</button>
+        </div>
+      </form>
+
+      <p class="auth-footer">
+        Déjà un compte ?
+        <a href="{{ url_for('legacy.login') }}">Se connecter</a>
+      </p>
+    </div>
+  </article>
+</section>
+{% endblock %}
+
+
