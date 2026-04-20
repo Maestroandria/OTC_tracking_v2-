@@ -51,6 +51,7 @@ def create_app(test_config: dict | None = None) -> Flask:
     app.config.from_mapping(
         SECRET_KEY=os.getenv("SECRET_KEY", "dev-insecure-secret"),
         DATABASE=os.getenv("DATABASE", os.path.join(app.instance_path, "app.db")),
+        DATABASE_URL=os.getenv("DATABASE_URL"),
         ADMIN_USER=os.getenv("APP_ADMIN_USER", "admin"),
         ADMIN_PASSWORD=os.getenv("APP_ADMIN_PASSWORD", "admin123"),
         CONTACT_EMAIL=os.getenv("APP_CONTACT_EMAIL", "contact@osl.local"),

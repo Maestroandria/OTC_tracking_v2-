@@ -1007,6 +1007,60 @@ textarea:focus-visible {
   padding: 1rem;
 }
 
+/* Bloc suivi rétractable */
+.admin-search-details {
+  padding: 0;
+  overflow: hidden;
+}
+
+.admin-search-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.admin-search-summary::-webkit-details-marker { display: none; }
+
+.admin-search-summary-left h2 {
+  margin: 0;
+}
+
+.admin-search-summary::after {
+  content: "▾";
+  font-size: 1.1rem;
+  color: var(--tw-muted, #888);
+  transition: transform 200ms ease;
+  flex-shrink: 0;
+}
+
+#admin-search-details[open] > .admin-search-summary::after {
+  transform: rotate(-180deg);
+}
+
+.admin-search-summary:hover {
+  background: color-mix(in srgb, var(--tw-surface) 90%, var(--tw-primary, #2563eb) 10%);
+}
+
+.admin-search-badge {
+  background: var(--tw-primary, #2563eb);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  line-height: 1.6;
+  flex-shrink: 0;
+}
+
+.admin-search-body {
+  padding: 0 1rem 1rem;
+}
+
 .admin-section-head {
   display: flex;
   justify-content: space-between;

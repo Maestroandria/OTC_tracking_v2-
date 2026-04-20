@@ -57,13 +57,13 @@ def login():
 		password = request.form.get("password", "").strip()
 		user = db.get_user_by_email_or_username(identifier)
 
-		if user and db.verify_password(user[3], password):
-			session["user"] = user[1]
-			session["email"] = user[2]
-			session["nom"] = user[4]
-			session["prenom"] = user[5]
-			session["fonction"] = user[6]
-			session["role"] = user[8] if len(user) > 8 else "user"
+		if user and db.verify_password(user['password_hash'], password):
+			session["user"] = user['username']
+			session["email"] = user['email']
+			session["nom"] = user['nom']
+			session["prenom"] = user['prenom']
+			session["fonction"] = user['fonction']
+			session["role"] = user['role'] if user['role'] else "user"
 			return redirect(url_for("legacy.dashboard"))
 
 		flash("Identifiants invalides")
@@ -126,7 +126,7 @@ def create_facture():
 			(f"{prefix}{year}%",),
 		)
 		if last:
-			last_num = int(last[0][4:])
+			last_num = int(last['num_facture'][4:])
 			next_num = last_num + 1
 		else:
 			next_num = 1
@@ -199,10 +199,10 @@ def create_facture():
 		try:
 			buffer = BytesIO()
 			client_row = db.get_client_by_code(code_client)
-			client_nom = client_row[2] if client_row else ""
-			adresse = client_row[3] if client_row else ""
-			nif = client_row[4] if client_row else ""
-			stat = client_row[5] if client_row else ""
+			client_nom = client_row['raison_sociale'] if client_row else ""
+			adresse = client_row['adresse'] if client_row else ""
+			nif = client_row['nif'] if client_row else ""
+			stat = client_row['stat'] if client_row else ""
 
 			facture_data = {
 				"num_facture": num_facture,

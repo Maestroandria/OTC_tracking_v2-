@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from app import db as unified_db
+from app.db import _q
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -12,7 +13,7 @@ class LegacyDatabase:
         params = params or ()
         conn = self.connect()
         cur = conn.cursor()
-        cur.execute(query, params)
+        cur.execute(_q(query), params)
         conn.commit()
         return cur
 
@@ -20,14 +21,14 @@ class LegacyDatabase:
         params = params or ()
         conn = self.connect()
         cur = conn.cursor()
-        cur.execute(query, params)
+        cur.execute(_q(query), params)
         return cur.fetchone()
 
     def fetchall(self, query: str, params=None):
         params = params or ()
         conn = self.connect()
         cur = conn.cursor()
-        cur.execute(query, params)
+        cur.execute(_q(query), params)
         return cur.fetchall()
 
     def init_all(self):
@@ -139,11 +140,11 @@ class LegacyDatabase:
 
         existing = self.get_client_by_code(code_client)
         if existing:
-            merged_raison_sociale = (raison_sociale or existing[2] or "").strip()
-            merged_adresse = (adresse or existing[3] or "").strip()
-            merged_nif = (nif or existing[4] or "").strip()
-            merged_stat = (stat or existing[5] or "").strip()
-            merged_rib = (rib or existing[6] or "").strip()
+            merged_raison_sociale = (raison_sociale or existing['raison_sociale'] or "").strip()
+            merged_adresse = (adresse or existing['adresse'] or "").strip()
+            merged_nif = (nif or existing['nif'] or "").strip()
+            merged_stat = (stat or existing['stat'] or "").strip()
+            merged_rib = (rib or existing['rib'] or "").strip()
 
             if not all([merged_raison_sociale, merged_adresse, merged_nif, merged_stat, merged_rib]):
                 return False, "Fiche client incomplète. Complète les informations client avant de facturer."
@@ -178,8 +179,8 @@ class LegacyDatabase:
 
         self.execute(
             """
-            INSERT INTO client (code_client, raison_sociale, adresse, nif, stat, rib)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO client (code_client, raison_sociale, adresse, nif, stat, rib, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 code_client,
@@ -188,6 +189,7 @@ class LegacyDatabase:
                 required_fields["NIF"],
                 required_fields["STAT"],
                 required_fields["RIB"],
+                datetime.now().isoformat(),
             ),
         )
         return True, None
@@ -211,10 +213,10 @@ class LegacyDatabase:
 
         self.execute(
             """
-            INSERT INTO facture (num_facture, date_facture, code_client, reference, type_facture, mode_reglement, total, devise, commentaire)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO facture (num_facture, date_facture, code_client, reference, type_facture, mode_reglement, total, devise, commentaire, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (num_facture, date_facture, code_client, devise, type_facture, mode_reglement, total, devise, commentaire),
+            (num_facture, date_facture, code_client, devise, type_facture, mode_reglement, total, devise, commentaire, datetime.now().isoformat()),
         )
 
         for ligne in lignes:

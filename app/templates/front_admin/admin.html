@@ -49,57 +49,61 @@
 
   <div class="admin-layout">
     <div class="admin-main-column">
-      <section class="card admin-search-card">
-        <div class="admin-section-head">
-          <div>
+      <details class="card admin-search-card admin-search-details" id="admin-search-details" {% if search or shipments %}open{% endif %}>
+        <summary class="admin-search-summary">
+          <div class="admin-search-summary-left">
             <p class="admin-section-kicker">Suivi des expéditions</p>
             <h2>Recherche et liste des colis</h2>
           </div>
+          <span class="admin-search-badge">{{ shipments|length }}</span>
+        </summary>
+
+        <div class="admin-search-body">
           <p class="muted">Consulte les résultats, ouvre le suivi public et filtre rapidement par tracking.</p>
-        </div>
 
-        <form method="get" action="{{ url_for('web.admin') }}" class="inline-form admin-inline-form admin-search-form">
-          <input type="text" name="q" value="{{ search }}" placeholder="Rechercher un tracking (ex: OSL-2026-0001)" />
-          <button type="submit">Rechercher</button>
-        </form>
+          <form method="get" action="{{ url_for('web.admin') }}" class="inline-form admin-inline-form admin-search-form">
+            <input type="text" name="q" value="{{ search }}" placeholder="Rechercher un tracking (ex: OSL-2026-0001)" />
+            <button type="submit">Rechercher</button>
+          </form>
 
-        <div class="admin-table-wrap admin-shipments-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Tracking</th>
-                <th>Client</th>
-                <th>Statut</th>
-                <th>Poids</th>
-                <th>Colis</th>
-                <th>Envoi</th>
-                <th>Frais</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for s in shipments %}
-              <tr>
-                <td>{{ s['date'] or '-' }}</td>
-                <td><strong>{{ s['tracking_number'] }}</strong></td>
-                <td>{{ s['client'] or '-' }}</td>
-                <td>{{ s['status_current_label'] or '-' }}</td>
-                <td>{{ s['poids'] or '-' }}</td>
-                <td>{{ s['colis'] or '-' }}</td>
-                <td>{{ s['envoi'] or '-' }}</td>
-                <td>{{ s['frais'] or '-' }}</td>
-                <td><a class="admin-row-link" href="{{ url_for('web.track_page', tracking_number=s['tracking_number']) }}" target="_blank" rel="noopener">Ouvrir</a></td>
-              </tr>
-              {% else %}
-              <tr>
-                <td colspan="9" class="muted">Aucun colis trouvé.</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          <div class="admin-table-wrap admin-shipments-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Tracking</th>
+                  <th>Client</th>
+                  <th>Statut</th>
+                  <th>Poids</th>
+                  <th>Colis</th>
+                  <th>Envoi</th>
+                  <th>Frais</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for s in shipments %}
+                <tr>
+                  <td>{{ s['date'] or '-' }}</td>
+                  <td><strong>{{ s['tracking_number'] }}</strong></td>
+                  <td>{{ s['client'] or '-' }}</td>
+                  <td>{{ s['status_current_label'] or '-' }}</td>
+                  <td>{{ s['poids'] or '-' }}</td>
+                  <td>{{ s['colis'] or '-' }}</td>
+                  <td>{{ s['envoi'] or '-' }}</td>
+                  <td>{{ s['frais'] or '-' }}</td>
+                  <td><a class="admin-row-link" href="{{ url_for('web.track_page', tracking_number=s['tracking_number']) }}" target="_blank" rel="noopener">Ouvrir</a></td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="9" class="muted">Aucun colis trouvé.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </section>
+      </details>
 
       <section class="admin-form-grid">
         <article class="card admin-form-card">

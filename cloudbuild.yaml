@@ -6,6 +6,8 @@ substitutions:
   _APP_ADMIN_USER: admin
   _APP_ADMIN_PASSWORD: please-change
   _WEBHOOK_TOKEN: please-change
+  _DB_PASS: please-change
+  _CLOUDSQL_INSTANCE: please-change
 
 steps:
   - name: gcr.io/cloud-builders/docker
@@ -33,8 +35,10 @@ steps:
       - --platform
       - managed
       - --allow-unauthenticated
+      - --add-cloudsql-instances
+      - ${_CLOUDSQL_INSTANCE}
       - --set-env-vars
-      - SECRET_KEY=${_SECRET_KEY},APP_ADMIN_USER=${_APP_ADMIN_USER},APP_ADMIN_PASSWORD=${_APP_ADMIN_PASSWORD},WEBHOOK_TOKEN=${_WEBHOOK_TOKEN}
+      - SECRET_KEY=${_SECRET_KEY},APP_ADMIN_USER=${_APP_ADMIN_USER},APP_ADMIN_PASSWORD=${_APP_ADMIN_PASSWORD},WEBHOOK_TOKEN=${_WEBHOOK_TOKEN},DATABASE_URL=postgresql://tracking_user:${_DB_PASS}@/tracking?host=/cloudsql/${_CLOUDSQL_INSTANCE}
 
 images:
   - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
