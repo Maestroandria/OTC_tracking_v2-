@@ -133,11 +133,18 @@
             </label>
             <label class="admin-field">
               <span>Envoi</span>
-              <input name="envoi" placeholder="Envoi" required />
+              <select name="envoi" id="create-envoi" required>
+                <option value="" disabled selected>Sélectionner…</option>
+                <option value="Normal">Normal</option>
+                <option value="Express">Express</option>
+                <option value="Liquide &amp; Poudre">Liquide &amp; Poudre</option>
+                <option value="Batterie">Batterie</option>
+              </select>
             </label>
             <label class="admin-field admin-field-wide">
-              <span>Frais</span>
-              <input name="frais" type="number" step="0.01" min="0" placeholder="Frais" required />
+              <span>Frais <em class="admin-field-auto">(auto)</em></span>
+              <input id="create-frais-display" type="text" placeholder="Sélectionne un type et un poids…" readonly />
+              <input name="frais" id="create-frais" type="hidden" />
             </label>
             <button type="submit">Créer</button>
           </form>

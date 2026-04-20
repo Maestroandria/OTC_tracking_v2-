@@ -1083,6 +1083,12 @@ textarea:focus-visible {
   gap: 0.32rem;
   font-weight: 600;
   font-size: 0.88rem;
+  min-width: 0;
+}
+
+.admin-field select {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .admin-field span {
@@ -1091,6 +1097,23 @@ textarea:focus-visible {
 
 .admin-field-wide {
   grid-column: 1 / -1;
+}
+
+.admin-field-auto {
+  font-weight: 400;
+  font-size: 0.78rem;
+  color: var(--tw-muted, #888);
+  font-style: normal;
+  margin-left: 0.25rem;
+}
+
+.admin-field input[readonly] {
+  background: color-mix(in srgb, var(--tw-bg) 80%, var(--tw-muted, #888) 20%);
+  cursor: not-allowed;
+  color: var(--tw-text);
+  border-style: dashed;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .admin-grid-form-modern button {

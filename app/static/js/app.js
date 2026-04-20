@@ -135,7 +135,6 @@ function initAdminPage() {
       détail: "details",
       ts: "ts",
       event_time: "ts",
-      date: "ts",
     };
 
     return Object.entries(row).reduce((acc, [key, value]) => {
@@ -211,13 +210,54 @@ function initAdminPage() {
     setFeedback("Modèle Excel téléchargé: modele_import_osl.xlsx");
   }
 
+  // Auto-calcul des frais selon type d'envoi
+  const SHIPPING_RATES = {
+    "Normal": 70000,
+    "Express": 83000,
+    "Liquide & Poudre": 95000,
+    "Batterie": 136000,
+  };
+
+  function formatAr(value) {
+    return `${new Intl.NumberFormat("fr-FR").format(Math.round(value))} Ar`;
+  }
+
+  function updateAutoFrais() {
+    const envoi = document.getElementById("create-envoi");
+    const poids = createShipmentForm?.querySelector('[name="poids"]');
+    const fraisHidden = document.getElementById("create-frais");
+    const fraisDisplay = document.getElementById("create-frais-display");
+    if (!envoi || !poids || !fraisHidden || !fraisDisplay) return;
+    const rate = SHIPPING_RATES[envoi.value];
+    const weight = parseFloat(poids.value || "0");
+    if (rate && weight > 0) {
+      const total = Math.round(weight * rate);
+      fraisHidden.value = total;
+      fraisDisplay.value = formatAr(total);
+    } else {
+      fraisHidden.value = "";
+      fraisDisplay.value = "";
+    }
+  }
+
+  document.getElementById("create-envoi")?.addEventListener("change", updateAutoFrais);
+  createShipmentForm?.querySelector('[name="poids"]')?.addEventListener("input", updateAutoFrais);
+
   createShipmentForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    updateAutoFrais();
+    const fraisVal = document.getElementById("create-frais")?.value;
+    if (!fraisVal || parseFloat(fraisVal) <= 0) {
+      setFeedback("Sélectionne un type d'envoi et renseigne le poids pour calculer les frais.", true);
+      return;
+    }
     try {
       const payload = formToObject(createShipmentForm);
       const data = await postJson("/api/track", payload);
       setFeedback(`${data.message}: ${data.tracking_number}`);
       createShipmentForm.reset();
+      document.getElementById("create-frais").value = "";
+      document.getElementById("create-frais-display").value = "";
     } catch (err) {
       setFeedback(err.message, true);
     }
