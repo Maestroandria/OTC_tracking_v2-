@@ -44,10 +44,24 @@ def _is_api_request() -> bool:
     return request.path.startswith("/api") or "application/json" in accepts
 
 
+def _format_ariary(value) -> str:
+    if value in (None, ""):
+        return "-"
+
+    try:
+        amount = round(float(value))
+    except (TypeError, ValueError):
+        return str(value)
+
+    return f"{amount:,.0f}".replace(",", " ") + " Ar"
+
+
 def create_app(test_config: dict | None = None) -> Flask:
     load_dotenv()
 
     app = Flask(__name__, instance_relative_config=True)
+    app.jinja_env.filters["ariary"] = _format_ariary
+
     app.config.from_mapping(
         SECRET_KEY=os.getenv("SECRET_KEY", "dev-insecure-secret"),
         DATABASE=os.getenv("DATABASE", os.path.join(app.instance_path, "app.db")),

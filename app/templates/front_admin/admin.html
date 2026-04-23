@@ -18,11 +18,11 @@
     <div class="admin-stats-grid">
       <div class="admin-stat-card">
         <span>Expéditions</span>
-        <strong>{{ shipments|length }}</strong>
+        <strong>{{ total_shipments }}</strong>
       </div>
       <div class="admin-stat-card">
         <span>Recherche active</span>
-        <strong>{{ search or 'Toutes' }}</strong>
+        <strong>{{ active_search_label }}</strong>
       </div>
       <div class="admin-stat-card admin-imports-card">
         <span>Imports</span>
@@ -55,15 +55,43 @@
             <p class="admin-section-kicker">Suivi des expéditions</p>
             <h2>Recherche et liste des colis</h2>
           </div>
-          <span class="admin-search-badge">{{ shipments|length }}</span>
+          <span class="admin-search-badge">{{ total_shipments }}</span>
         </summary>
 
         <div class="admin-search-body">
           <p class="muted">Consulte les résultats, ouvre le suivi public et filtre rapidement par tracking.</p>
 
           <form method="get" action="{{ url_for('web.admin') }}" class="inline-form admin-inline-form admin-search-form">
-            <input type="text" name="q" value="{{ search }}" placeholder="Rechercher un tracking (ex: OSL-2026-0001)" />
-            <button type="submit">Rechercher</button>
+            <input class="admin-filter-input" type="text" name="q" value="{{ search }}" placeholder="Tracking (ex: OSL-2026-0001)" />
+            <input class="admin-filter-input" type="text" name="client" value="{{ client_filter }}" placeholder="Client" />
+            <select name="status">
+              <option value="" {% if not status_filter %}selected{% endif %}>Tous statuts</option>
+              <option value="Créé" {% if status_filter == 'Créé' %}selected{% endif %}>Créé</option>
+              <option value="Pris en charge" {% if status_filter == 'Pris en charge' %}selected{% endif %}>Pris en charge</option>
+              <option value="En transit" {% if status_filter == 'En transit' %}selected{% endif %}>En transit</option>
+              <option value="Au hub" {% if status_filter == 'Au hub' %}selected{% endif %}>Au hub</option>
+              <option value="En livraison" {% if status_filter == 'En livraison' %}selected{% endif %}>En livraison</option>
+              <option value="Livré" {% if status_filter == 'Livré' %}selected{% endif %}>Livré</option>
+              <option value="Exception" {% if status_filter == 'Exception' %}selected{% endif %}>Exception</option>
+              <option value="Retourné" {% if status_filter == 'Retourné' %}selected{% endif %}>Retourné</option>
+              <option value="Bloqué en douane" {% if status_filter == 'Bloqué en douane' %}selected{% endif %}>Bloqué en douane</option>
+            </select>
+            <select name="envoi">
+              <option value="" {% if not envoi_filter %}selected{% endif %}>Tous envois</option>
+              <option value="Normal" {% if envoi_filter == 'Normal' %}selected{% endif %}>Normal</option>
+              <option value="Express" {% if envoi_filter == 'Express' %}selected{% endif %}>Express</option>
+              <option value="Liquide &amp; Poudre" {% if envoi_filter == 'Liquide & Poudre' %}selected{% endif %}>Liquide &amp; Poudre</option>
+              <option value="Batterie" {% if envoi_filter == 'Batterie' %}selected{% endif %}>Batterie</option>
+            </select>
+            <button type="submit" class="admin-search-icon-btn" aria-label="Rechercher">
+              <span class="admin-search-icon" aria-hidden="true"></span>
+            </button>
+            <a class="admin-page-link admin-icon-link" href="{{ url_for('web.admin_export', q=search, client=client_filter, status=status_filter, envoi=envoi_filter) }}" aria-label="Exporter CSV" title="Exporter CSV">
+              <span class="admin-export-icon" aria-hidden="true"></span>
+            </a>
+            <a class="admin-page-link admin-icon-link" href="{{ url_for('web.admin') }}" aria-label="Réinitialiser les filtres" title="Réinitialiser les filtres">
+              <span class="admin-reset-icon" aria-hidden="true"></span>
+            </a>
           </form>
 
           <div class="admin-table-wrap admin-shipments-table-wrap">
@@ -77,7 +105,7 @@
                   <th>Poids</th>
                   <th>Colis</th>
                   <th>Envoi</th>
-                  <th>Frais</th>
+                  <th class="admin-col-money">Frais</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -91,7 +119,7 @@
                   <td>{{ s['poids'] or '-' }}</td>
                   <td>{{ s['colis'] or '-' }}</td>
                   <td>{{ s['envoi'] or '-' }}</td>
-                  <td>{{ s['frais'] or '-' }}</td>
+                  <td class="admin-col-money">{{ s['frais']|ariary }}</td>
                   <td><a class="admin-row-link" href="{{ url_for('web.track_page', tracking_number=s['tracking_number']) }}" target="_blank" rel="noopener">Ouvrir</a></td>
                 </tr>
                 {% else %}
@@ -101,6 +129,25 @@
                 {% endfor %}
               </tbody>
             </table>
+          </div>
+
+          <div class="admin-pagination">
+            <p class="muted">Affichage {{ start_item }}-{{ end_item }} sur {{ total_shipments }} colis</p>
+            <div class="admin-pagination-actions">
+              {% if page > 1 %}
+              <a class="admin-page-link" href="{{ url_for('web.admin', q=search, client=client_filter, status=status_filter, envoi=envoi_filter, page=page-1) }}">Précédent</a>
+              {% else %}
+              <span class="admin-page-link is-disabled">Précédent</span>
+              {% endif %}
+
+              <span class="admin-page-current">Page {{ page }} / {{ total_pages }}</span>
+
+              {% if page < total_pages %}
+              <a class="admin-page-link" href="{{ url_for('web.admin', q=search, client=client_filter, status=status_filter, envoi=envoi_filter, page=page+1) }}">Suivant</a>
+              {% else %}
+              <span class="admin-page-link is-disabled">Suivant</span>
+              {% endif %}
+            </div>
           </div>
         </div>
       </details>

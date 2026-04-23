@@ -283,20 +283,70 @@ def get_shipment_by_tracking(tracking_number: str):
     )
 
 
-def list_shipments(search: str | None = None, limit: int = 50):
-    if search:
-        return query_all(
-            """
-            SELECT * FROM colis
-            WHERE tracking_number LIKE ?
-            ORDER BY updated_at DESC
-            LIMIT ?
-            """,
-            (f"%{search}%", limit),
-        )
+def _build_shipments_filter_clause(filters: dict | None = None) -> tuple[str, tuple]:
+    filters = filters or {}
+    clauses: list[str] = []
+    params: list = []
+
+    tracking_search = (filters.get("q") or "").strip()
+    client_search = (filters.get("client") or "").strip()
+    status_filter = (filters.get("status") or "").strip()
+    envoi_filter = (filters.get("envoi") or "").strip()
+
+    if tracking_search:
+        clauses.append("tracking_number LIKE ?")
+        params.append(f"%{tracking_search}%")
+
+    if client_search:
+        clauses.append("LOWER(COALESCE(client, '')) LIKE LOWER(?)")
+        params.append(f"%{client_search}%")
+
+    if status_filter:
+        clauses.append("status_current_label = ?")
+        params.append(status_filter)
+
+    if envoi_filter:
+        clauses.append("envoi = ?")
+        params.append(envoi_filter)
+
+    where_clause = f" WHERE {' AND '.join(clauses)}" if clauses else ""
+    return where_clause, tuple(params)
+
+
+def count_shipments(filters: dict | None = None) -> int:
+    where_clause, params = _build_shipments_filter_clause(filters)
+    row = query_one(f"SELECT COUNT(*) AS total FROM colis{where_clause}", params)
+
+    if not row:
+        return 0
+
+    return int(row["total"] if isinstance(row, dict) else row[0])
+
+
+def list_shipments(filters: dict | None = None, limit: int = 25, offset: int = 0):
+    where_clause, params = _build_shipments_filter_clause(filters)
     return query_all(
-        "SELECT * FROM colis ORDER BY updated_at DESC LIMIT ?",
-        (limit,),
+        f"""
+        SELECT * FROM colis
+        {where_clause}
+        ORDER BY updated_at DESC
+        LIMIT ?
+        OFFSET ?
+        """,
+        (*params, limit, offset),
+    )
+
+
+def export_shipments(filters: dict | None = None):
+    where_clause, params = _build_shipments_filter_clause(filters)
+    return query_all(
+        f"""
+        SELECT date, tracking_number, client, status_current_label, poids, colis, envoi, frais, created_at, updated_at
+        FROM colis
+        {where_clause}
+        ORDER BY updated_at DESC
+        """,
+        params,
     )
 
 

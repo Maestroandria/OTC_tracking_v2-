@@ -1087,7 +1087,137 @@ textarea:focus-visible {
 }
 
 .admin-search-form {
+  display: grid;
+  grid-template-columns:
+    minmax(170px, 1.35fr)
+    minmax(130px, 1fr)
+    minmax(125px, 0.95fr)
+    minmax(125px, 0.95fr)
+    44px
+    auto
+    auto;
+  gap: 0.55rem;
   margin-bottom: 0.95rem;
+}
+
+.admin-search-form .admin-filter-input {
+  min-width: 0;
+}
+
+.admin-search-form input,
+.admin-search-form select,
+.admin-search-form button,
+.admin-search-form .admin-page-link {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-search-form .admin-page-link {
+  min-height: 36px;
+  padding: 0 0.6rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.admin-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 0;
+}
+
+.admin-search-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0;
+}
+
+.admin-search-icon {
+  position: relative;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.admin-search-icon::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  right: -6px;
+  bottom: -1px;
+  transform: rotate(40deg);
+}
+
+.admin-export-icon,
+.admin-reset-icon {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+}
+
+.admin-export-icon::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 1px;
+  width: 10px;
+  height: 9px;
+  border: 2px solid currentColor;
+  border-top: 0;
+  border-radius: 0 0 3px 3px;
+}
+
+.admin-export-icon::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 0;
+  width: 2px;
+  height: 8px;
+  background: currentColor;
+  box-shadow: -3px 5px 0 -1px currentColor, 3px 5px 0 -1px currentColor;
+  clip-path: polygon(50% 100%, 0 55%, 28% 55%, 28% 0, 72% 0, 72% 55%, 100% 55%);
+}
+
+.admin-reset-icon::before,
+.admin-reset-icon::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 1px;
+  width: 2px;
+  height: 14px;
+  background: currentColor;
+  border-radius: 999px;
+}
+
+.admin-reset-icon::before {
+  transform: rotate(45deg);
+}
+
+.admin-reset-icon::after {
+  transform: rotate(-45deg);
+}
+
+@media (max-width: 1100px) {
+  .admin-search-form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-search-form {
+    grid-template-columns: 1fr;
+  }
 }
 
 .admin-shipments-table-wrap {
@@ -1121,6 +1251,60 @@ textarea:focus-visible {
   color: var(--tw-primary);
   text-decoration: none;
   font-weight: 600;
+}
+
+.admin-col-money {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.admin-pagination {
+  margin-top: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.admin-pagination .muted {
+  margin: 0;
+}
+
+.admin-pagination-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.admin-page-link,
+.admin-page-current {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--tw-border);
+  background: var(--tw-surface);
+  color: var(--tw-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.admin-page-link:hover {
+  border-color: var(--tw-primary);
+  color: var(--tw-primary);
+}
+
+.admin-page-link.is-disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.admin-page-current {
+  background: color-mix(in srgb, var(--tw-primary) 10%, var(--tw-surface));
+  border-color: color-mix(in srgb, var(--tw-primary) 35%, var(--tw-border));
 }
 
 .admin-grid-form {
