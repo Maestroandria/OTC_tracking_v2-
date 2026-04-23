@@ -103,7 +103,6 @@
                   <th>Client</th>
                   <th>Statut</th>
                   <th>Poids</th>
-                  <th>Colis</th>
                   <th>Envoi</th>
                   <th class="admin-col-money">Frais</th>
                   <th>Action</th>
@@ -117,14 +116,13 @@
                   <td>{{ s['client'] or '-' }}</td>
                   <td>{{ s['status_current_label'] or '-' }}</td>
                   <td>{{ s['poids'] or '-' }}</td>
-                  <td>{{ s['colis'] or '-' }}</td>
                   <td>{{ s['envoi'] or '-' }}</td>
                   <td class="admin-col-money">{{ s['frais']|ariary }}</td>
                   <td><a class="admin-row-link" href="{{ url_for('web.track_page', tracking_number=s['tracking_number']) }}" target="_blank" rel="noopener">Ouvrir</a></td>
                 </tr>
                 {% else %}
                 <tr>
-                  <td colspan="9" class="muted">Aucun colis trouvé.</td>
+                  <td colspan="8" class="muted">Aucun colis trouvé.</td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -178,10 +176,7 @@
               <span>Poids</span>
               <input name="poids" type="number" step="0.01" min="0" placeholder="Poids" required />
             </label>
-            <label class="admin-field">
-              <span>Colis</span>
-              <input name="colis" type="number" min="1" placeholder="Colis" required />
-            </label>
+            <input type="hidden" name="colis" value="1" />
             <label class="admin-field">
               <span>Envoi</span>
               <select name="envoi" id="create-envoi" required>
