@@ -277,9 +277,15 @@ def create_shipment(payload: dict):
 
 
 def get_shipment_by_tracking(tracking_number: str):
+    normalized_tracking = tracking_number
+    if isinstance(normalized_tracking, float) and normalized_tracking.is_integer():
+        normalized_tracking = str(int(normalized_tracking))
+    else:
+        normalized_tracking = str(normalized_tracking).strip()
+
     return query_one(
         "SELECT * FROM colis WHERE tracking_number = ?",
-        (tracking_number,),
+        (normalized_tracking,),
     )
 
 

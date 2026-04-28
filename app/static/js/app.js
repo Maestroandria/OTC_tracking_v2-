@@ -296,7 +296,7 @@ function initAdminPage() {
         requireFields(row, ["date", "tracking_number", "client", "poids", "colis", "envoi", "frais"]);
         return {
           date: row.date,
-          tracking_number: row.tracking_number,
+          tracking_number: String(row.tracking_number || "").trim(),
           client: row.client,
           poids: row.poids,
           colis: row.colis,
@@ -327,7 +327,7 @@ function initAdminPage() {
       const { successCount, errors } = await importRows(rows, "/api/events", (row) => {
         requireFields(row, ["tracking_number", "code"]);
         return {
-          tracking_number: row.tracking_number,
+          tracking_number: String(row.tracking_number || "").trim(),
           code: String(row.code || "").toUpperCase(),
           label: row.label || "",
           location: row.location || "",
