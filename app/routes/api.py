@@ -16,10 +16,15 @@ def _require_json() -> dict:
     return payload
 
 
-def _parse_event_time(value: str | None) -> str:
-    if not value:
+def _parse_event_time(value) -> str:
+    if not value and value != 0:
         return datetime.now(timezone.utc).isoformat()
-    return value
+    if isinstance(value, (int, float)):
+        # Numéro de série Excel (jours depuis 1899-12-30) → datetime ISO
+        from datetime import timedelta
+        epoch = datetime(1899, 12, 30, tzinfo=timezone.utc)
+        return (epoch + timedelta(days=float(value))).isoformat()
+    return str(value)
 
 
 @bp.get("/status-codes")

@@ -154,7 +154,7 @@ function initAdminPage() {
     }
 
     const buffer = await file.arrayBuffer();
-    const workbook = window.XLSX.read(buffer, { type: "array" });
+    const workbook = window.XLSX.read(buffer, { type: "array", cellDates: true });
     const firstSheetName = workbook.SheetNames[0];
     if (!firstSheetName) {
       return [];
