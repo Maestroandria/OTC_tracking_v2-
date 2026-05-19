@@ -4,27 +4,90 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}Administration OSL{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css', v='superadmin-20260519-20') }}" />
     {% block head_extra %}{% endblock %}
   </head>
-  <body>
-    <header class="container header">
-      <div class="header-left">
-        <a href="{{ url_for('web.index') }}">
-          <img src="{{ url_for('static', filename='legacy/logo.png') }}" alt="OSL Logo" class="logo" />
-        </a>
-      </div>
-      <nav>
-        <a href="{{ url_for('web.index') }}" class="auth-home-link">Retour a l'accueil</a>
-        <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">🌙 Sombre</button>
-      </nav>
-    </header>
+  <body><header class="portal-header">
+      <div class="portal-topbar">
+        <div class="container portal-topbar-inner">
+          <a class="portal-brand" href="{{ url_for('web.index') }}">
+            <img src="{{ url_for('static', filename='legacy/logo.png') }}" alt="OSL Logo" class="logo portal-logo" />
+            <div class="portal-brand-copy">
+              <span class="portal-brand-kicker">Oriental Sourcing</span>
+              <strong>Logistics Console</strong>
+            </div>
+          </a>
 
-    <main class="container">
+          <form class="portal-search" action="{{ url_for('web.track_redirect') }}" method="get">
+            <input
+              type="text"
+              name="tracking_number"
+              placeholder="Rechercher un tracking ou ouvrir un suivi..."
+              aria-label="Recherche rapide"
+            />
+            <button type="submit" class="portal-search-btn" aria-label="Lancer la recherche">⌕</button>
+          </form>
+
+          <div class="portal-tools">
+            {% if session.get('user') %}
+            <span class="portal-user-badge">{{ session.get('prenom') or session.get('user') }}</span>
+            {% endif %}
+            <button type="button" class="theme-toggle portal-theme-toggle" data-theme-toggle aria-pressed="false">🌙 Sombre</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="portal-navband">
+        <div class="container portal-navband-inner">
+          <a href="{{ url_for('web.index') }}" class="portal-nav-item {% if request.endpoint == 'web.index' %}is-active{% endif %}">
+            <span class="portal-nav-icon" aria-hidden="true">⌂</span>
+            <span class="portal-nav-label">Accueil</span>
+          </a>
+
+          <a href="{{ url_for('web.tracking_page') }}" class="portal-nav-item {% if request.endpoint in ['web.tracking_page', 'web.track_page', 'web.track_redirect'] %}is-active{% endif %}">
+            <span class="portal-nav-icon" aria-hidden="true">◉</span>
+            <span class="portal-nav-label">Suivi</span>
+          </a>
+
+          {% if session.get('role') in ['admin', 'super_admin'] %}
+          <a href="{{ url_for('web.admin') }}" class="portal-nav-item {% if request.endpoint == 'web.admin' %}is-active{% endif %}">
+            <span class="portal-nav-icon" aria-hidden="true">▦</span>
+            <span class="portal-nav-label">Expéditions</span>
+          </a>
+          {% else %}
+          <a href="{{ url_for('legacy.dashboard') }}" class="portal-nav-item {% if request.endpoint == 'legacy.dashboard' %}is-active{% endif %}">
+            <span class="portal-nav-icon" aria-hidden="true">☺</span>
+            <span class="portal-nav-label">Mon espace</span>
+          </a>
+          {% endif %}
+
+          {% if session.get('role') == 'super_admin' %}
+          <a href="{{ url_for('web.super_admin_dashboard') }}" class="portal-nav-item {% if request.endpoint == 'web.super_admin_dashboard' %}is-active{% endif %}">
+            <span class="portal-nav-icon" aria-hidden="true">◈</span>
+            <span class="portal-nav-label">Super Admin</span>
+          </a>
+          {% endif %}
+
+          {% if session.get('role') in ['admin', 'super_admin'] %}
+          <a href="{{ url_for('legacy.create_facture') }}" class="portal-nav-item {% if request.endpoint == 'legacy.create_facture' %}is-active{% endif %}">
+            <span class="portal-nav-icon" aria-hidden="true">¤</span>
+            <span class="portal-nav-label">Facturation</span>
+          </a>
+          {% endif %}
+
+          {% if session.get('user') %}
+          <a href="{{ url_for('legacy.logout') }}" class="portal-nav-item portal-nav-item-logout">
+            <span class="portal-nav-icon" aria-hidden="true">×</span>
+            <span class="portal-nav-label">Déconnexion</span>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </header><main class="container {% block main_class %}{% endblock %}">
       {% block content %}{% endblock %}
     </main>
 
-    <script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/ui.js', v='domfix-20260519-2') }}" defer></script>
     <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
     {% block body_extra %}{% endblock %}
   </body>

@@ -1,0 +1,394 @@
+{% extends 'front_admin/base.html' %}
+{% block title %}Super Dashboard{% endblock %}
+{% block main_class %}container-super-admin{% endblock %}
+{% block content %}
+<section class="super-admin-shell">
+  <aside class="card super-admin-side">
+    <p class="admin-kicker">Super administrateur</p>
+    <h1>Console de pilotage</h1>
+    <p class="muted">Navigue entre les vues clés de supervision.</p>
+
+    <nav class="super-admin-nav">
+      <a
+        class="super-admin-nav-link {% if selected_view == 'dashboard' %}is-active{% endif %}"
+        href="{{ url_for('web.super_admin_dashboard', view='dashboard') }}"
+      >
+        Dashboard
+      </a>
+      <a
+        class="super-admin-nav-link {% if selected_view == 'details' %}is-active{% endif %}"
+        href="{{ url_for('web.super_admin_dashboard', view='details') }}"
+      >
+        Détails
+      </a>
+      <a class="super-admin-nav-link" href="{{ url_for('web.admin') }}">Administration expéditions</a>
+    </nav>
+  </aside>
+
+  <article class="card super-admin-display">
+    {% if selected_view == 'dashboard' %}
+    <div class="super-admin-display-head">
+      <p class="admin-section-kicker">Vue globale</p>
+      <h2>Indicateurs principaux</h2>
+      <p class="muted">Synthèse opérationnelle en un coup d'oeil.</p>
+    </div>
+
+    <div class="admin-stats-grid">
+      <div class="admin-stat-card">
+        <span>Total colis</span>
+        <strong>{{ total_shipments }}</strong>
+      </div>
+      <div class="admin-stat-card">
+        <span>Poids total</span>
+        <strong>{{ '%.2f'|format(total_weight) }} kg</strong>
+      </div>
+      <div class="admin-stat-card">
+        <span>Montant total</span>
+        <strong>{{ total_amount|ariary }}</strong>
+      </div>
+      <div class="admin-stat-card">
+        <span>Poids semaine en cours</span>
+        <strong>{{ '%.2f'|format(current_week_weight) }} kg</strong>
+      </div>
+      <div class="admin-stat-card">
+        <span>Moyenne hebdomadaire</span>
+        <strong>{{ '%.2f'|format(average_weekly_weight) }} kg</strong>
+      </div>
+    </div>
+
+    <div class="super-admin-box">
+      <div class="admin-search-summary-left">
+        <p class="admin-section-kicker">Contrôle rapide</p>
+        <h3>Dernières expéditions</h3>
+      </div>
+
+      <div class="admin-table-wrap admin-shipments-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Tracking</th>
+              <th>Client</th>
+              <th>Statut</th>
+              <th>Envoi</th>
+              <th class="admin-col-money">Frais</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in recent_shipments %}
+            <tr>
+              <td>{{ s['date'] or '-' }}</td>
+              <td><strong>{{ s['tracking_number'] }}</strong></td>
+              <td>{{ s['client'] or '-' }}</td>
+              <td>{{ s['status_current_label'] or '-' }}</td>
+              <td>{{ s['envoi'] or '-' }}</td>
+              <td class="admin-col-money">{{ s['frais']|ariary }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="6" class="muted">Aucune expédition disponible.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="super-admin-detail-grid">
+      <section class="super-admin-box">
+        <div class="admin-search-summary-left">
+          <p class="admin-section-kicker">Graphique</p>
+          <h3>Top clients par montant</h3>
+        </div>
+        <div class="super-admin-chart-list">
+          {% for row in top_clients_amount_chart %}
+          <div class="super-admin-chart-row">
+            <div class="super-admin-chart-meta">
+              <span>{{ row['label'] }}</span>
+              <strong>{{ row['amount']|ariary }}</strong>
+            </div>
+            <progress class="super-admin-chart-progress" max="100" value="{{ '%.2f'|format(row['pct']) }}"></progress>
+          </div>
+          {% else %}
+          <p class="muted">Aucune donnée.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="super-admin-box">
+        <div class="admin-search-summary-left">
+          <p class="admin-section-kicker">Graphique</p>
+          <h3>Nombre de colis par statut</h3>
+        </div>
+        <div class="super-admin-chart-list">
+          {% for row in status_count_chart %}
+          <div class="super-admin-chart-row">
+            <div class="super-admin-chart-meta">
+              <span>{{ row['label'] }}</span>
+              <strong>{{ row['count'] }}</strong>
+            </div>
+            <progress class="super-admin-chart-progress" max="100" value="{{ '%.2f'|format(row['pct']) }}"></progress>
+          </div>
+          {% else %}
+          <p class="muted">Aucune donnée.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+    {% endif %}
+
+    {% if selected_view == 'details' %}
+    <div class="super-admin-display-head">
+      <p class="admin-section-kicker">Vue détaillée</p>
+      <h2>Détails opérationnels</h2>
+      <p class="muted">Top clients, statuts, poids moyens et montants par service.</p>
+      <p class="super-admin-version-badge">UI SUPER ADMIN v2026-05-19.3</p>
+    </div>
+
+    <div class="super-admin-detail-grid super-admin-chart-grid">
+      <section class="super-admin-box">
+        <div class="admin-search-summary-left">
+          <p class="admin-section-kicker">Graphique</p>
+          <h3>Répartition des statuts</h3>
+        </div>
+        <canvas id="status-pie-chart" class="super-admin-canvas" aria-label="Répartition des statuts" role="img"></canvas>
+      </section>
+
+      <section class="super-admin-box">
+        <div class="admin-search-summary-left">
+          <p class="admin-section-kicker">Graphique</p>
+          <h3>Montants par service</h3>
+        </div>
+        <canvas id="service-pie-chart" class="super-admin-canvas" aria-label="Montants par service" role="img"></canvas>
+      </section>
+
+      <section class="super-admin-box">
+        <div class="admin-search-summary-left">
+          <p class="admin-section-kicker">Graphique</p>
+          <h3>Top clients (page en cours)</h3>
+        </div>
+        <canvas id="top-clients-bar-chart" class="super-admin-canvas" aria-label="Top clients par montant" role="img"></canvas>
+      </section>
+
+      <section class="super-admin-box">
+        <div class="admin-search-summary-left">
+          <p class="admin-section-kicker">Graphique</p>
+          <h3>Poids moyen (page en cours)</h3>
+        </div>
+        <canvas id="avg-weight-bar-chart" class="super-admin-canvas" aria-label="Poids moyen par client" role="img"></canvas>
+      </section>
+    </div>
+
+    <div class="super-admin-detail-grid">
+      <section class="super-admin-box">
+        <div class="admin-search-summary-left">
+          <p class="admin-section-kicker">Clients</p>
+          <h3>Montants par client</h3>
+        </div>
+        <div class="super-admin-details-tools">
+          <p class="muted">Affichage {{ tc_start_item }}-{{ tc_end_item }} sur {{ tc_total_items }} clients</p>
+          <div class="admin-pagination-actions">
+            {% if tc_page > 1 %}
+            <a class="admin-page-link" href="{{ url_for('web.super_admin_dashboard', view='details', tc_page=tc_page-1, st_page=st_page, aw_page=aw_page, sv_page=sv_page) }}">Précédent</a>
+            {% else %}
+            <span class="admin-page-link is-disabled">Précédent</span>
+            {% endif %}
+
+            <span class="admin-page-current">Page {{ tc_page }} / {{ tc_total_pages }}</span>
+
+            {% if tc_page < tc_total_pages %}
+            <a class="admin-page-link" href="{{ url_for('web.super_admin_dashboard', view='details', tc_page=tc_page+1, st_page=st_page, aw_page=aw_page, sv_page=sv_page) }}">Suivant</a>
+            {% else %}
+            <span class="admin-page-link is-disabled">Suivant</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="admin-table-wrap super-admin-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th class="admin-col-money">Montant total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in top_clients_by_amount %}
+              <tr>
+                <td>{{ row['client'] }}</td>
+                <td class="admin-col-money">{{ row['amount']|ariary }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="2" class="muted">Aucune donnée.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="super-admin-box">
+        <div class="admin-search-summary-left">
+          <p class="admin-section-kicker">Par statut</p>
+          <h3>Nombre de colis et poids</h3>
+        </div>
+        <div class="super-admin-details-tools">
+          <p class="muted">Affichage {{ st_start_item }}-{{ st_end_item }} sur {{ st_total_items }} statuts</p>
+          <div class="admin-pagination-actions">
+            {% if st_page > 1 %}
+            <a class="admin-page-link" href="{{ url_for('web.super_admin_dashboard', view='details', tc_page=tc_page, st_page=st_page-1, aw_page=aw_page, sv_page=sv_page) }}">Précédent</a>
+            {% else %}
+            <span class="admin-page-link is-disabled">Précédent</span>
+            {% endif %}
+
+            <span class="admin-page-current">Page {{ st_page }} / {{ st_total_pages }}</span>
+
+            {% if st_page < st_total_pages %}
+            <a class="admin-page-link" href="{{ url_for('web.super_admin_dashboard', view='details', tc_page=tc_page, st_page=st_page+1, aw_page=aw_page, sv_page=sv_page) }}">Suivant</a>
+            {% else %}
+            <span class="admin-page-link is-disabled">Suivant</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="admin-table-wrap super-admin-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Statut</th>
+                <th>Total colis</th>
+                <th>Poids total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in status_breakdown %}
+              <tr>
+                <td>{{ row['label'] }}</td>
+                <td>{{ row['count'] }}</td>
+                <td>{{ '%.2f'|format(row['weight']) }} kg</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="3" class="muted">Aucune donnée.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="super-admin-box">
+        <div class="admin-search-summary-left">
+          <p class="admin-section-kicker">Poids moyen</p>
+          <h3>Par client</h3>
+        </div>
+        <div class="super-admin-details-tools">
+          <p class="muted">Affichage {{ aw_start_item }}-{{ aw_end_item }} sur {{ aw_total_items }} clients</p>
+          <div class="admin-pagination-actions">
+            {% if aw_page > 1 %}
+            <a class="admin-page-link" href="{{ url_for('web.super_admin_dashboard', view='details', tc_page=tc_page, st_page=st_page, aw_page=aw_page-1, sv_page=sv_page) }}">Précédent</a>
+            {% else %}
+            <span class="admin-page-link is-disabled">Précédent</span>
+            {% endif %}
+
+            <span class="admin-page-current">Page {{ aw_page }} / {{ aw_total_pages }}</span>
+
+            {% if aw_page < aw_total_pages %}
+            <a class="admin-page-link" href="{{ url_for('web.super_admin_dashboard', view='details', tc_page=tc_page, st_page=st_page, aw_page=aw_page+1, sv_page=sv_page) }}">Suivant</a>
+            {% else %}
+            <span class="admin-page-link is-disabled">Suivant</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="admin-table-wrap super-admin-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Nb colis</th>
+                <th>Poids moyen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in avg_weight_by_client %}
+              <tr>
+                <td>{{ row['client'] }}</td>
+                <td>{{ row['count'] }}</td>
+                <td>{{ '%.2f'|format(row['avg_weight']) }} kg</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="3" class="muted">Aucune donnée.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="super-admin-box">
+        <div class="admin-search-summary-left">
+          <p class="admin-section-kicker">Montants</p>
+          <h3>Récapitulatif par service</h3>
+        </div>
+        <div class="super-admin-details-tools">
+          <p class="muted">Affichage {{ sv_start_item }}-{{ sv_end_item }} sur {{ sv_total_items }} services</p>
+          <div class="admin-pagination-actions">
+            {% if sv_page > 1 %}
+            <a class="admin-page-link" href="{{ url_for('web.super_admin_dashboard', view='details', tc_page=tc_page, st_page=st_page, aw_page=aw_page, sv_page=sv_page-1) }}">Précédent</a>
+            {% else %}
+            <span class="admin-page-link is-disabled">Précédent</span>
+            {% endif %}
+
+            <span class="admin-page-current">Page {{ sv_page }} / {{ sv_total_pages }}</span>
+
+            {% if sv_page < sv_total_pages %}
+            <a class="admin-page-link" href="{{ url_for('web.super_admin_dashboard', view='details', tc_page=tc_page, st_page=st_page, aw_page=aw_page, sv_page=sv_page+1) }}">Suivant</a>
+            {% else %}
+            <span class="admin-page-link is-disabled">Suivant</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="admin-table-wrap super-admin-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th class="admin-col-money">Montant total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in amount_by_service %}
+              <tr>
+                <td>{{ row['service'] }}</td>
+                <td class="admin-col-money">{{ row['amount']|ariary }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="2" class="muted">Aucune donnée.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+    {% endif %}
+  </article>
+</section>
+{% endblock %}
+
+{% block body_extra %}
+{% if selected_view == 'details' %}
+<script id="super-admin-chart-data" type="application/json">{{ {
+  'status_breakdown': status_breakdown,
+  'amount_by_service': amount_by_service,
+  'top_clients': top_clients_by_amount,
+  'avg_weight_by_client': avg_weight_by_client
+}|tojson }}</script>
+<script src="{{ url_for('static', filename='js/super_admin_dashboard.js', v='20260519-2') }}" defer></script>
+{% endif %}
+{% endblock %}
